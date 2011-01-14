@@ -96,6 +96,8 @@ module Yajl
           if body.is_a?(Hash)
             body = body.keys.collect {|param| "#{URI.escape(param.to_s)}=#{URI.escape(body[param].to_s)}"}.join('&')
           end
+        else
+          content_type = opts.has_key?('Content-Type') ? opts.delete(['Content-Type']) : '*/*'
         end
 
         socket = opts.has_key?(:socket) ? opts.delete(:socket) : TCPSocket.new(uri.host, uri.port)
@@ -103,7 +105,7 @@ module Yajl
         request << "Host: #{uri.host}\r\n"
         request << "Authorization: Basic #{[uri.userinfo].pack('m').strip!}\r\n" unless uri.userinfo.nil?
         request << "User-Agent: #{user_agent}\r\n"
-        request << "Accept: */*\r\n"
+        request << "Accept: #{content_type}\r\n"
         if method == "POST" || method == "PUT"
           request << "Content-Length: #{body.length}\r\n"
           request << "Content-Type: #{content_type}\r\n"
